@@ -28,4 +28,12 @@ A simple Python-based file upload server with speed indicators.
 - `index.html`: Frontend.
 - `uploads/`: Storage for files.
 
+## Screenshots
+
+### Upload Interface
+![Upload Interface](screenshots/1.png)
+
+### Progress and Speed Indicator
+![Progress and Speed Indicator](screenshots/2.png)
+
 ---------------------------------------------------------------------------- Happy coding ! -------------------------------------------------------------
