@@ -2,8 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-    <title>File Upload</title>
+    <title>Upload Your Files/title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,14 +13,17 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-        } 
+            flex-direction: column;
+        }
 
         #upload-form {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            max-width: 400px;
+            width: 90%;
         }
 
         h2 {
@@ -30,32 +32,162 @@
 
         input[type="file"] {
             margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        input[type="submit"] {
+        input[type="button"] {
             background-color: #4caf50;
             color: #fff;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        input[type="submit"]:hover {
+        input[type="button"]:hover {
             background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 20px;
+            margin-top: 10px;
+            display: none;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #ddd;
+        }
+
+        #progress-bar::-webkit-progress-bar {
+            background-color: #ddd;
+        }
+
+        #progress-bar::-webkit-progress-value {
+            background-color: #4caf50;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #progress-bar::-moz-progress-bar {
+            background-color: #4caf50;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+            min-height: 40px;
+            line-height: 20px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f4f4;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #upload-form {
+                padding: 15px;
+            }
+
+            input[type="file"], input[type="button"] {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            #status {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
     <div id="upload-form">
         <h2>Upload Multiple Files</h2>
-        <form action="upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="files[]" multiple>
+        <form id="fileUploadForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="files[]" multiple>
             <br>
-            <input type="submit" value="Upload">
+            <input type="button" value="Upload" id="uploadButton">
+            <progress id="progress-bar" value="0" max="100"></progress>
+            <div id="status">Waiting for upload...</div>
         </form>
     </div>
+
+    <script>
+        document.getElementById('uploadButton').addEventListener('click', function() {
+            const form = document.getElementById('fileUploadForm');
+            const files = document.getElementById('fileInput').files;
+            const progressBar = document.getElementById('progress-bar');
+            const status = document.getElementById('status');
+
+            if (files.length === 0) {
+                alert('Please select at least one file.');
+                return;
+            }
+
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]);
+            }
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+
+            // Show the progress bar and reset status
+            progressBar.style.display = 'block';
+            status.textContent = 'Starting upload...';
+
+            let startTime = Date.now();
+
+            // Update progress bar and calculate transfer speed
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    progressBar.value = percentComplete;
+
+                    const elapsedTime = (Date.now() - startTime) / 1000; // time in seconds
+                    const speed = (event.loaded / elapsedTime) / (1024 * 1024); // speed in MB/s
+                    status.textContent = `Transferred: ${Math.round(event.loaded / (1024 * 1024))} MB / 
+                                          ${Math.round(event.total / (1024 * 1024))} MB 
+                                          (${percentComplete.toFixed(2)}%) at ${speed.toFixed(2)} MB/s`;
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('Files uploaded successfully!');
+                    progressBar.value = 0;
+                    progressBar.style.display = 'none';
+                    status.textContent = 'Upload completed successfully!';
+                } else {
+                    alert('An error occurred while uploading files.');
+                }
+            };
+
+            // Handle errors
+            xhr.onerror = function() {
+                alert('An error occurred while uploading files.');
+                progressBar.value = 0;
+                progressBar.style.display = 'none';
+                status.textContent = 'Upload failed. Please try again.';
+            };
+
+            xhr.send(formData);
+        });
+    </script>
 </body>
 </html>
 <!-- code by navnee1h -->
