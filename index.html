@@ -1,8 +1,7 @@
-<!-- code by navnee1h -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Upload Your Files/title>
+    <title>File Upload with Progress and Speed</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -158,14 +157,15 @@
                     const percentComplete = (event.loaded / event.total) * 100;
                     progressBar.value = percentComplete;
 
-                    const elapsedTime = (Date.now() - startTime) / 1000; // time in seconds
-                    const speed = (event.loaded / elapsedTime) / (1024 * 1024); // speed in MB/s
+                    const elapsedTime = (Date.now() - startTime) / 1000; // Time in seconds
+                    const speed = (event.loaded / elapsedTime) / (1024 * 1024); // Speed in MB/s
                     status.textContent = `Transferred: ${Math.round(event.loaded / (1024 * 1024))} MB / 
                                           ${Math.round(event.total / (1024 * 1024))} MB 
                                           (${percentComplete.toFixed(2)}%) at ${speed.toFixed(2)} MB/s`;
                 }
             };
 
+            // Reset progress bar and display success message upon completion
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     alert('Files uploaded successfully!');
@@ -190,4 +190,3 @@
     </script>
 </body>
 </html>
-<!-- code by navnee1h -->
